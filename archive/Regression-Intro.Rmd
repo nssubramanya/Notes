@@ -1,0 +1,19 @@
+---
+title: "Regression-Intro"
+author: "Subramanya"
+date: "12/19/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*Consider the dataset given by x=c(0.725,0.429,-0.372,0.863). What value of mu minimizes sum((x - mu)ˆ2)?*
+
+```{r}
+library("UsingR")
+head(galton)
+with(galton, plot(parent, jitter(child, amount=0.8)))
+abline(a=0, b=1, col="red", lwd=3) # Slope is 1 for 45% line, 3 point thickness
+```
