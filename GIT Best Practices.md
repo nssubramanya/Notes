@@ -160,13 +160,13 @@ Specify what needs to be ingored inside that file. You can specify filenames, fo
 
 
 * [GIT 7 Best Practices](https://yeti.co/blog/get-the-most-out-of-git-7-best-practices-for-budding-developers/)
-* Use Terminal
-* Use Branching and pull Requests
-* Squash and Merge
-* Avoid Merge Commits
-* Review other's code independently
-* Use git mv
-* Re-write, Don't Rage
+	* Use Terminal
+	* Use Branching and pull Requests
+	* Squash and Merge
+	* Avoid Merge Commits
+	* Review other's code independently
+	* Use git mv
+	* Re-write, Don't Rage
 
 
 

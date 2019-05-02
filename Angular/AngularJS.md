@@ -123,7 +123,7 @@ import { FormsModule } from '@angular/forms';
 	 	"src/styles.css"
 	 	]
 	 ```
-3. Include Boostrap Javascript 
+
 
 ## Behind the scenes of Angular
 What happens when we visit `http://localhost:4200`?
@@ -252,6 +252,21 @@ __Example__
 
 Note that `<app-server>` component is Re-usable and can be used multiple times if required.
 
+### Nesting of Components
+Components can be nested within one another. In such a case, a component is created in the folder of another component.
+
+To nest components when creating via CLI, mention the containing components separated by `\` when creating the component.
+
+```
+ng g c recipes/recipelist
+```
+### Prevent creation of spec file
+To prevent creation of .spec file which is used for testing, following option can be added 
+
+```
+ng g c --spec=false recipe-list
+```
+
 ## Inline HTML Template for Components
 HTML for a component is usually written in a separate HTML file. Ex: for Servers component it is written in `servers.component.html`
 
@@ -336,4 +351,243 @@ Usage:
 <div app-servers> </div>
 
 ```
+## Databinding
+Communication between Business Logic (Typescript code) and HTML Template
+
+Ways of Data-binding
+1. One Way data binding
+	 From Business logic to Template using String Interpolation ({{ data }}) or Property Binding ([property] = "data")
+	 
+2. React to User Events
+	Event Binding - executing some code on events like Button click etc. ((event) = "expression")
+	 
+3. Two-way Data binding
+When Model changes due to Business logic execution, the UI is changed and similarly when UI is updated, the model is also updated automatically
+
+### String Interpolation
+* Specified in HTML Template
+* Uses the {{ }} syntax
+* A String has to be present within the {{ }} syntax. It can be a hard-coded string or an expression that returns a string
+* Ex: {{ 'Server' }} or {{ serverName }} or {{ getServerName() }}
+* Usual way is to have Class properties and use the property name in the {{ }} syntax to replace the value of the property
+
+###### File: server.component.ts
+```
+export class ServerComponent {
+	serverStatus: string = 'offline';
+	
+	getServerStatus() {
+		return this.serverStatus;
+	}
+}
+```
+
+###### File: server.component.html
+
+```
+<p> {{ 'Server' }} with ID {{ serverId }} is {{ getServerStatus() }} </p>
+```
+
+### Property Binding
+We can bind HTML Properties to Angular identifiers so that the HTML properties change based on the value of the identifiers.
+
+Ex: Binding to `disabled` property of a HTML button to a Angular identifier `allowNewServer`. Based on `true` or `false` value of the identifier, the button can be `enabled` or `disabled`
+
+```
+<button class="btn btn-primary" [disabled]="!allowNewServer">AddServer</button>
+```
+```
+export class ServerComponent {
+	let allowNewServer:boolean = false;
+}
+```
+Note that Property binding uses Square Brackets []
+
+### Event Binding
+Event Binding helps us to bind to HTML events and execute code when that event occurrs
+
+Event binding uses Parantheses ()
+
+To bind a Button click event to execute a function,
+
+```
+<button class="btn btn-primary" (click)="onServerCreate()">New Server</button>
+```
+This code will call `onServerCreate` function on button click.
+
+### Two Way Data Binding
+We combine One-way data binding and Event Binding
+
+If HTML Element changes, the Model variable changes. Same way if model variable changes, HTML element is updated automatically.
+
+__File__:`servers.component.html`
+
+```
+<input type="text" [(ngModel)]="serverName"/>
+```
+__File__:`servers.component.ts`
+
+```
+export class ServersComponent {
+	serverName = 'TestServer';
+}
+```
+
+## Directives
+Directives are Instructions in the DOM. Note that Components are also Directives.
+
+They are extended HTML Attributes with prefix ng-
+
+Directives are markers on DOM element (may be attribute, element name, comment or CSS class) that tells Angular's HTML compiler to attach a specified behavior to that DOM element or transform the DOM element and its children
+```
+<p appTurnGreen> Receives a green Background! </p>
+```
+
+```
+@Directive({
+	selector: '[appTurnGreen]'
+})
+export class TurnGreenDirective {
+}
+```
+
+### ngIf
+The ngIf is used with HTML Element to conditionally include/exclude the element.
+
+A structural directive that conditionally includes a template based on the value of an expression coerced to Boolean.
+
+__File__: servers.component.html
+```
+<input type=text [(ngModel)]="serverName">
+<p *ngIf="serverCreated">Server was created, server name is {{ serverName }}</p>
+``` 
+
+__File__: servers.component.ts
+
+```
+export class ServersComponent {
+	serverName = '';
+	serverCreated = false;
+	
+	onServerCreated() {
+		serverCreated = true;
+	}
+```
+
+### ngIf-Else
+Refer to the following article:
+[ngIf documentation] (https://angular.io/api/common/NgIf)
+
+### ngStyle
+* This is a attribute directive. 
+* Structural directives add/remove elements. Attribute directives only change the element where they are placed on
+* Sets one or more style properties, specified ad colon separated key-value pairs
+
+```
+<p [ngStyle]="{background-color: getColor()}">{{getServerStatus()}}</p>
+```
+
+`getColor()` can dynamically evaluate conditions and specify color appropriately.
+ 
+### ngClass
+* Applies a CSS class to an element conditionally. Adds or Removes CSS classes
+
+Examples:
+```
+<some-element [ngClass]="'first second'">...</some-element>
+<p [ngClass]="{online: isServerOnline()}">
+```
+
+### ngFor
+Loop through and insert DOM elements
+
+```
+<ul>
+	<li *ngFor="let hero of heroes">
+		{{ hero }}
+	</li>
+</ul>
+```
+
+#### To get the index value in ngFor
+```
+<ul>
+	<li *ngFor="let hero of heroes; let i = index">
+		{{i}} - {{ hero }}
+	</li>
+</ul>
+```
+
+## Course Project
+```
+ng g c headerng 
+ng g c recipes --spec false
+ng g c recipes/recipe-list --spec false
+ng g c recipes/recipe-details --spec false
+ng g c recipes/recipe-list/recipe-item --spec false
+
+ng g c shopping-list --spec false
+ng g c shopping-list/shopping-edit --spec false
+```
+
+## Augury - To Debug Angular Code
+* Chrome Plugin
+* Look in Debug Console - Augury Tab
+* Shows Component Tree, NgModules, Router Tree
+* Great tool to understand application dependencies
+
+## Passing Data between Components
+
+### Exposing a Bindable property from a Component
+A component can expose a bindable property by using the `@Input('<alias>')` decorator in front of the property that is visible from outside and to which data can be passed
+
+By default, all attributes of a Component are private and not accessible from outside. 
+
+```
+export class ServerElementComponent{
+	@Input('srvElement') element: {type: string, name: string};
+	
+}
+```
+
+The alias inside the @Input is not mandatory. If it is not present, the property name is used as is.
+
+__Note:__
+This method is extremely useful to pass data from PARENT component to CHILD component
+
+### Binding to custom Events
+A component can raise events and other components can bind to those events to catch them. Data can also be passed as part of raising this event.
+
+1. Import `Output` and `EventEmitter` from `@angular/core`
+2. Create the events
+3. Emit the events
+4. In HTML, attach handler functions to events
+5. Get the Event data and act on it in the hander
+
+##### Setting up a Component to raise Events
+```
+import { Component, Output, EventEmitter } from '@angular/core';
+
+@Component(){
+}
+
+export class CockpitComponent {
+@Output() serverCreated = new EventEmitter<{serverName: string, serverContent: string}>();
+
+@Output('bpCreated') blueprintCreated = new EventEmitter<{serverName: string, serverContent: string}> ();
+}
+```
+
+##### Emitting Events
+```
+export class CockpitComponent {
+
+
+}
+
+```
+
+
+kubeadm join 172.31.99.250:6443 --token s05tzb.bw87atsb08ardxzi --discovery-token-ca-cert-hash sha256:3da00a1f60215810a2923032303e938bdec395640347f50cbd23752fd7043b9f
+
 
