@@ -283,3 +283,330 @@ __Strategy 1__: Add the missing state as part of the `setSomeState` function arg
 __Strategy 2__: Call `useState` multiple times, each time with a different state object to internally store the different state objects. 
 Each time, `useState` returns separate State Variables and State Updating functions. Call the respective functions to update relevant state objects
 
+```
+const app = props => {
+	const [personState, setPersonState] = useState({
+		persons: [
+			{ name: "Steve", age=28 },
+			{ name: "Laura", age=30 }
+		]
+	});
+	
+	const [otherState, setOtherState] = useState('some other value');
+	
+	const switchNameHandler = () => {
+		setPersonState ({
+			persons: [
+				{ name: "Stephen Fleming", age = 36},
+				{ name: "Laura Phillip", age = 30 }
+			]
+		});
+	}
+}
+```
+
+## Stateful and Stateless Components
+### Stateful Components
+* Any component that stores and manages internal state using Class-based `state` method or Function-based `useState` method is a Stateful component
+* This is also called Container Component or Smart Component
+
+### Stateless Component
+* A component that does not contain any internal state is a Stateless Component
+* This is also called a Presentation Component or Dumb Component
+* It is advisable to create as many Stateless Components as possible instead of Stateful components
+
+## Passing Method References
+Method reference can be passed as part of parameters from one component to another one. It can be used with `props`.
+
+## Two-way Binding
+When UI changes -> Model/State must be updated
+When Model/State Changes -> UI must be updated
+
+Step 1: Setup the Component
+
+__File: hello.js__
+
+```
+import React from 'react';
+
+const hello = (props) => {
+	return (
+		<div>
+			<input type="text" placeholder="Enter Company" onChange={props.changed} value={props.company}/>
+			<p>{props.company}</p>
+		</div>
+	)
+}
+
+export default hello;
+```
+
+__File: App.js__
+
+```
+class App extends Component {
+	state = {
+		company: "Aseema"
+	}
+	
+	companyChangedHandler = (event) => {
+		this.setState ({
+			company: {event.target.value}
+		});
+	}
+	
+	render () {
+		return (
+			<div className="App">
+				<Hello company={this.state.company} changed={this.companyChangedHandler} /> 
+			</div>
+		)
+	}
+}
+```
+
+## Inline styles
+
+## Conditional output
+* Similar to *ngIf directive in Angular
+* JSX is actually javascript, so we can use Ternary operator to decide
+* Use a variable that will determine whether to Include the element (& its children) into DOM or not
+* Enclose within Angle brackets and put the ternary operator and the elements within it
+
+```
+let showPersons = false;
+
+{
+	showPersons ?
+	<div>
+		<Person />
+		<Person />
+	</div>
+	: null
+}
+```
+
+Alternatively, we can assign the DOM elements to a variable and use that variable to include it in to the DOM
+
+## Looping
+* Use Javascript tools - Map
+
+```
+function App() {
+	return (
+		<div>
+		{
+			persons.map(person => {
+				return <Person name={person.name} age={person.age}/>
+			})}
+		</div>
+	)
+}
+```
+
+Pattern is to MAP an Array in to an Arrary with JSX elements
+
+### Passing Click handler into Lists
+```
+const nameChangedHandler = (event, id) => {
+	const personIndex = this.state.persons.findIndex(p => {
+		return p.id === id;
+	});
+	
+	const person = {
+		...this.state.persons[personIndex];
+	};
+	
+	person.name = event.target.value;
+	const persons = [...this.state.persons]
+	persons[personIndex] = person;
+	
+	this.setState({persons: persons})
+}
+
+const deletePersonHander = (personIndex) => {
+	// const persons = this.state.persons.slice();
+	const persons = [...this.state.persons];
+	
+	persons.splice(personIndex, 1);
+	this.setState({persons: persons});
+}
+
+let persons = null;
+
+if (this.state.showPersons) {
+	persons = (
+		<div>
+			{
+				this.state.persons.map((person, index) => {
+					return <Person
+						click = {() => this.deletePersonHanlder(index)}
+						name = { person.name }
+						age = { person.age }
+						key = { index }
+						changed={(event) => this.nameChangedHandler(event, person.id)}
+				})
+			}
+		</div>
+}
+```
+
+### Lists & Keys
+Key property is extremely important for React to figure out which item in the list got changed and only render them. Otherwise, for every change, the whole list is re-rendered and this is wasteful and slow.
+
+Look at `key` attribute in previous code listing
+
+## Styling React Elements & Components
+* Using Inline Styling, React only provides options to set CSS properties
+* No Support for Pseudo selectors like `hover`. Pseudo selectors depend on other elements Ex:
+
+```
+button {
+	background: white;
+}
+
+button:hover {
+	background: green;
+}
+```
+
+### Inline Style
+
+```
+const style = {
+	background: 'white',
+	color: 'red'
+}
+
+<button style={style}></button>
+```
+
+### Dynamically adding Styles
+* Since everything is Javascript in JSX, use code to specify styles
+
+```
+	const style = {
+		background: 'green',
+		color: 'white'
+	}
+	
+	if (this.state.showPersons) {
+		style.background = 'red';
+	}
+	
+	<button sytle={style}></button>
+```
+Once the `style` object is set, any changes to it are automatically applied
+
+### Dynamically adding classes
+* Use code to put the necessary classes in to a variable.
+* Assign that variable to `className`
+* Any change to that variable, the classes are re-applied automatically
+
+### Using Radium for dynamic styling (solving pseudo selector problem)
+* Radium is a set of tools to manage inline styles on React elements
+* It give you powerful styling capabilities without CSS
+* Radium unlocks power of React & inline styling by enabling support for CSS pseudo selectors, media queries, vendor-prefixing and much more through a simple interface
+
+#### Installing Radium
+
+```
+npm install --save radium
+```
+
+#### Importing Radium
+Radium must be imported in every file it is being used.
+
+```
+import Radium from 'radium';
+```
+
+#### Using Radium
+To use radium, the component must be Wrapped within Radium
+Radium works as a Higher-Order-Component (HOC), a component that contains another component
+
+This Wrapping can be used for both Class-based components and function-based components
+
+```
+export default Radium(App);
+```
+
+## Organizing App in to Component
+* Have more Presentation components (function-based) dumb components
+* Manage State in only a few components
+* Prefer to use Class-based components to manage State
+
+## Class-based Vs Function-based Components
+### Class Based
+* __Creation:__ `class XY extends Component`
+* __State Management:__ Yes using `state` and `setState()`
+* __State Access:__ Directly via `this.state.XY` or `this.props.XY` (in case of child components that are also class-based)
+* __Lifecycle Hooks:__ Yes
+
+Use this if you need to manage State or access to Lifecylce Hooks and don't want to use React Hooks!
+
+### Functional Components
+* __Creation:__ `const XY = props => { }
+* __State Management__: Yes via `useState()`
+* __State Access__: Yes
+* __Lifecycle Hooks__: No
+* Access Props via `props` (`props.XY`)
+
+Use this in all cases where we dont' want to manage State, Don't need Lifecylce Hooks!
+
+## Component Lifecycle
+### Creation Life Cycle
+#### `constructor (props)`
+* DO: Setup State
+* DON'T: Cause Side-effects like - (a) Making HTTP Request (b) Storing data in Local Storage of Browser (c) Sending Analytics to Google analytics etc.
+
+#### `getDerivedStateFromProps()`
+* Whenever props of Class based component change, you can sync your state to them!
+* When props change, if we want to change some internal state
+* Very Rare to use!
+* Don't cause Side Effects (Making HTTP Requests etc.)
+
+#### `render()`
+* Prepare and Structure your JSX & HTML
+* Don't cause Side Effects like Making HTTP Requests, Blocking, Timeouts etc. To block the Rendering process
+* In Render, if we are rendering any Child Components, their Life-cycle Hooks get Executed in the same order as above - constructor, getDerivedStateFromProps, render
+
+#### `componentDidMount()`
+* Will be called after rendering of current component
+* Very Important LifeCycle event that is very often used
+* We can make HTTP Requests
+* Do NOT Set State here immediately. This can be done after the HTTP Request returns the data. 
+* Anytime `setState` is called, a re-render cycle is executed which is bad for performance!
+
+#### `getShapshotBeforeUpdate()`
+
+* `componentDidCatch()`
+* `shouldComponentUpdate()`
+* `componentDidUpdate()`
+* 
+* `componentWillUnmount()`
+
+
+## Creating a Project
+
+### Identify Requirements
+### Identify Components
+### Identify State
+### Create Project
+### Setup
+- Remove SVG file & its references
+- Remove default JSX content in App.js 
+- Remove App.css and its reference in App.js
+- Use Google Fonts to get reference of `Open Sans` font; Customize for Add Regular & Bold; Add font reference to `index.html`
+- Change Application Title in `index.html`
+- Create folders `src\components`, `src\containers`, `src\assets`; `src\components  ` will contain Presentational Components (Functional or Class-based), `src\containers` will contain Smart Components that manage State; `assets` will contain Image assets
+- 
+
+
+
+
+
+
+
+
+
