@@ -44,3 +44,5 @@ Orchestration
 	Creating a stack file using YAML with `docker stack deploy`
 	Working with a Running Service Stack
 	
+
+## Docker References
